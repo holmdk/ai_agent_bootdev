@@ -1,26 +1,45 @@
 import os
+from typing import List, Optional
+
+from functions.helper_functions import extract_absolute_paths
 
 
-def formatter(file_name, file_size, is_dir):
+def formatter(file_name: str, file_size: int, is_dir: bool) -> str:
+    """
+    Format file information into a readable string.
+
+    Args:
+        file_name: The name of the file or directory.
+        file_size: The size of the file in bytes.
+        is_dir: Whether the item is a directory.
+
+    Returns:
+        A formatted string with file information.
+    """
     return f"- {file_name}: file_size={file_size}, is_dir={is_dir}\n"
 
-def get_files_info(working_directory, directory=None):
-    try:
-        # Handle the case where directory is a relative path
-        # If it's a relative path, join it with the working directory
-        if not os.path.isabs(directory):
-            full_directory = os.path.join(working_directory, directory)
-        else:
-            full_directory = directory
 
-        # Convert both paths to absolute paths
-        abs_working_dir = os.path.abspath(working_directory)
-        abs_directory = os.path.abspath(full_directory)
+def get_files_info(working_directory: str, directory: Optional[str] = None) -> str:
+    """
+    Get information about files in a directory within the permitted working directory.
+
+    Args:
+        working_directory: The base directory that contains the target directory.
+        directory: The path to the directory to list, relative to the working directory or absolute.
+                  If None, defaults to the working directory itself.
+
+    Returns:
+        A string containing information about each file in the directory,
+        or an error message if the directory cannot be accessed.
+    """
+    try:
+        # If directory is None, use "." to represent the current directory
+        if directory is None:
+            directory = "."
+
+        abs_directory, abs_working_dir = extract_absolute_paths(directory, working_directory)
 
         # Check if the directory is outside the working directory
-        # A directory is outside if it doesn't start with the working directory path
-        # We need to add a path separator to ensure we're checking for the directory itself
-        # and not just a prefix match
         if not abs_directory.startswith(abs_working_dir + os.path.sep) and abs_directory != abs_working_dir:
             return f'Error: Cannot list "{directory}" as it is outside the permitted working directory'
 
@@ -30,7 +49,8 @@ def get_files_info(working_directory, directory=None):
 
         # Use the absolute directory path for listing files
         files = os.listdir(abs_directory)
-        contents = []
+        contents: List[str] = []
+
         for file_name in files:
             # Create the full path for the file
             file_path = os.path.join(abs_directory, file_name)
@@ -46,9 +66,6 @@ def get_files_info(working_directory, directory=None):
 
         # Join all the formatted strings and return
         return ''.join(contents)
+
     except Exception as e:
         return f"Error: {e}"
-
-#- README.md: file_size=1032 bytes, is_dir=False
-#- src: file_size=128 bytes, is_dir=True
-#- package.json: file_size=1234 bytes, is_dir=False

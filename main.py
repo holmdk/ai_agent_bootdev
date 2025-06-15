@@ -15,18 +15,18 @@ from google.genai import types
 
 # Load environment variables and initialize client
 load_dotenv()
-api_key = os.environ.get("GEMINI_API_KEY")
+api_key: str = os.environ.get("GEMINI_API_KEY")
 client = genai.Client(api_key=api_key)
 
 if __name__ == '__main__':
     # Get user prompt from command line arguments
     try:
-        input_prompt = sys.argv[1]
+        input_prompt: str = sys.argv[1]
     except IndexError:
         sys.exit("Error: Please provide a prompt as the first argument")
 
     # Prepare message for the model
-    messages = [
+    messages: list[types.Content] = [
         types.Content(role="user", parts=[types.Part(text=input_prompt)]),
     ]
 
