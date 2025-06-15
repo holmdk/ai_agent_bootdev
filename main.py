@@ -7,6 +7,7 @@ Optional --verbose flag provides additional information about the interaction.
 # Standard library imports
 import os
 import sys
+from typing import Optional
 
 # Third-party imports
 from dotenv import load_dotenv
@@ -15,7 +16,7 @@ from google.genai import types
 
 # Load environment variables and initialize client
 load_dotenv()
-api_key: str = os.environ.get("GEMINI_API_KEY")
+api_key: Optional[str] = os.environ.get("GEMINI_API_KEY")
 client = genai.Client(api_key=api_key)
 
 if __name__ == '__main__':
@@ -39,8 +40,11 @@ if __name__ == '__main__':
     # Check if verbose flag has been set
     if len(sys.argv) > 2 and sys.argv[2] == "--verbose":
         print(f"User prompt: {input_prompt}")
-        print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
-        print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
+        if response.usage_metadata:
+            print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
+            print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
+        else:
+            print("Usage metadata not available")
         print(response.text)
     else:
         print(response.text)
