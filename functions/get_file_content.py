@@ -1,5 +1,7 @@
 import os
 
+from google.genai import types
+
 from functions.helper_functions import extract_absolute_paths
 
 
@@ -43,3 +45,23 @@ def get_file_content(working_directory: str, file_path: str) -> str:
 
     except Exception as e:
         return f"Error: {e}"
+
+
+schema_get_file_content = types.FunctionDeclaration(
+    name="get_file_content",
+    description="Read and return the content of a file within the permitted working directory, files larger than 10000 characters will be truncated.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "directory": types.Schema(
+                type=types.Type.STRING,
+                description="The base directory that contains the file."
+            ),
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="The path to the file, relative to the working directory or absolute.",
+            )
+        },
+    ),
+)
+

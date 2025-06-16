@@ -1,5 +1,7 @@
 import os
 
+from google.genai import types
+
 from functions.helper_functions import extract_absolute_paths
 
 
@@ -35,3 +37,26 @@ def write_file(working_directory: str, file_path: str, content: str) -> str:
 
     except Exception as e:
         return f"Error: {e}"
+
+
+schema_write_file = types.FunctionDeclaration(
+    name="write_file",
+    description="Write content to a file within the permitted working directory.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "working_directory": types.Schema(
+                type=types.Type.STRING,
+                description="The base directory that contains or will contain the file."
+            ),
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="The path to the file, relative to the working directory or absolute.",
+            ),
+            "content": types.Schema(
+                type=types.Type.STRING,
+                description="The content to write to the file.",
+            )
+        },
+    ),
+)

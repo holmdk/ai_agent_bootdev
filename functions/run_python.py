@@ -1,6 +1,8 @@
 import os
 import subprocess
 
+from google.genai import types
+
 from functions.helper_functions import extract_absolute_paths
 
 
@@ -70,3 +72,22 @@ def run_python_file(working_directory, file_path):
 
     except Exception as e:
         return f"Error: {e}"
+
+
+schema_run_python_file = types.FunctionDeclaration(
+    name="run_python_file",
+    description="Write content to a file within the permitted working directory.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "working_directory": types.Schema(
+                type=types.Type.STRING,
+                description="The directory to use as the working directory for execution."
+            ),
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="The path to the Python file to execute, relative to working_directory.",
+            )
+        },
+    ),
+)
