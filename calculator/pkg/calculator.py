@@ -1,10 +1,3 @@
-"""
-Calculator module for evaluating mathematical expressions.
-
-This module provides a Calculator class that can parse and evaluate
-mathematical expressions with basic arithmetic operations.
-"""
-
 from typing import Callable, Dict, List, Optional
 
 
@@ -74,10 +67,19 @@ class Calculator:
         operators: List[str] = []
 
         for token in tokens:
-            if token in self.operators:
+            if token == '(':
+                operators.append(token)
+            elif token == ')':
+                while operators and operators[-1] != '(':
+                    self._apply_operator(operators, values)
+                if not operators:
+                    raise ValueError("Unmatched ')'")
+                operators.pop()  # Remove the '('
+            elif token in self.operators:
                 # Process operators according to precedence
                 while (
                     operators
+                    and operators[-1] != '('
                     and operators[-1] in self.operators
                     and self.precedence[operators[-1]] >= self.precedence[token]
                 ):
@@ -92,6 +94,8 @@ class Calculator:
 
         # Process any remaining operators
         while operators:
+            if operators[-1] == '(':
+                raise ValueError("Unmatched '('")
             self._apply_operator(operators, values)
 
         # If we don't have exactly one value left, the expression was invalid
