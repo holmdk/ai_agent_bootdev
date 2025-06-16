@@ -14,37 +14,56 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-# Load environment variables and initialize client
-load_dotenv()
-api_key: Optional[str] = os.environ.get("GEMINI_API_KEY")
-client = genai.Client(api_key=api_key)
+from prompts import system_prompt
+
+from call_function import available_functions
+
 
 if __name__ == '__main__':
+    # Load environment variables and initialize client
+    load_dotenv()
+
     # Get user prompt from command line arguments
-    try:
-        input_prompt: str = sys.argv[1]
-    except IndexError:
-        sys.exit("Error: Please provide a prompt as the first argument")
+    verbose = "--verbose" in sys.argv
+    args = [arg for arg in sys.argv[1:] if not arg.startswith("--")]
+
+    if not args:
+        print("AI Code Assistant")
+        print('\nUsage: python main.py "your prompt here" [--verbose]')
+        print('Example: python main.py "How do I fix the calculator?"')
+        sys.exit(1)
+
+    api_key: Optional[str] = os.environ.get("GEMINI_API_KEY")
+    client = genai.Client(api_key=api_key)
+
+    user_prompt = " ".join(args)
+
+    if verbose:
+        print(f"User prompt: {user_prompt}\n")
 
     # Prepare message for the model
     messages: list[types.Content] = [
-        types.Content(role="user", parts=[types.Part(text=input_prompt)]),
+        types.Content(role="user", parts=[types.Part(text=user_prompt)]),
     ]
+
+    config = types.GenerateContentConfig(
+        tools=[available_functions], system_instruction=system_prompt
+    )
 
     # Generate response from the model
     response = client.models.generate_content(
         model="gemini-2.0-flash-001",
         contents=messages,
+        config=config,
     )
 
-    # Check if verbose flag has been set
-    if len(sys.argv) > 2 and sys.argv[2] == "--verbose":
-        print(f"User prompt: {input_prompt}")
-        if response.usage_metadata:
-            print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
-            print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
-        else:
-            print("Usage metadata not available")
+    if verbose:
+        print("Prompt tokens:", response.usage_metadata.prompt_token_count)
+        print("Response tokens:", response.usage_metadata.candidates_token_count)
+
+    if not response.function_calls:
         print(response.text)
-    else:
-        print(response.text)
+
+    for function_call_part in response.function_calls:
+        print(f"Calling function: {function_call_part.name}({function_call_part.args})")
+
