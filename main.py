@@ -1,17 +1,23 @@
 
-import sys
 import os
+import sys
+
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-from dotenv import load_dotenv
-
-from prompts import system_prompt
 
 from call_function import call_function, available_functions
 from config import MAX_ITERS
+from prompts import system_prompt
 
 
-def main():
+def main() -> None:
+    """
+    Main entry point for the AI Code Assistant.
+
+    Processes command line arguments, initializes the Gemini API client,
+    and handles the conversation loop with the AI model.
+    """
     load_dotenv()
 
     verbose = "--verbose" in sys.argv
@@ -52,7 +58,21 @@ def main():
             print(f"Error in generate_content: {e}")
 
 
-def generate_content(client, messages, verbose):
+def generate_content(client: genai.Client, messages: list[types.Content], verbose: bool) -> str | None:
+    """
+    Generate content using the Gemini API.
+
+    Args:
+        client: The Gemini API client.
+        messages: The conversation history.
+        verbose: Whether to print verbose output.
+
+    Returns:
+        The generated text response or None if a function call was made.
+
+    Raises:
+        Exception: If there's an error in function call processing.
+    """
     response = client.models.generate_content(
         model="gemini-2.0-flash-001",
         contents=messages,

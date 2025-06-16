@@ -1,20 +1,18 @@
-from google.genai import types
+"""
+Function calling module for the AI Code Assistant.
 
-from functions.get_file_content import schema_get_file_content
-from functions.get_files_info import schema_get_files_info
-from functions.run_python import schema_run_python_file
-from functions.write_file import schema_write_file
-
+This module provides functionality to call external functions based on AI model requests.
+"""
 
 import json
 import subprocess
 
 from google.genai import types
 
-from functions.get_file_content import get_file_content
-from functions.write_file import write_file
-from functions.get_files_info import get_files_info
-from functions.run_python import run_python_file
+from functions.get_file_content import get_file_content, schema_get_file_content
+from functions.get_files_info import get_files_info, schema_get_files_info
+from functions.run_python import run_python_file, schema_run_python_file
+from functions.write_file import write_file, schema_write_file
 
 available_functions = types.Tool(
     function_declarations=[
@@ -25,7 +23,20 @@ available_functions = types.Tool(
     ]
 )
 
-def call_function(function_call_part, verbose=False):
+def call_function(function_call_part: types.FunctionCall, verbose: bool = False) -> types.Content | str:
+    """
+    Call a function based on the function call part from the AI model.
+
+    Args:
+        function_call_part: The function call part from the AI model.
+        verbose: Whether to print verbose output.
+
+    Returns:
+        A Content object with the function response or an error string.
+
+    Raises:
+        Exception: If there's an error in function execution.
+    """
     function_call_part = types.FunctionCall(
         name=function_call_part.name,
         args=function_call_part.args,

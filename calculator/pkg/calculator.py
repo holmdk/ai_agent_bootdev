@@ -1,6 +1,5 @@
 from typing import Callable, Dict, List, Optional
 
-
 class Calculator:
     """
     A calculator that evaluates mathematical expressions using infix notation.
@@ -44,8 +43,13 @@ class Calculator:
         if not expression or expression.isspace():
             return None
 
-        # Split the expression into tokens
-        tokens = expression.strip().split()
+        # Preprocess the expression to ensure parentheses are separated
+        # Add spaces around parentheses
+        for char in "()":
+            expression = expression.replace(char, f" {char} ")
+
+        # Split the expression into tokens and filter out empty tokens
+        tokens = [token for token in expression.strip().split() if token]
 
         # Evaluate the infix expression
         return self._evaluate_infix(tokens)

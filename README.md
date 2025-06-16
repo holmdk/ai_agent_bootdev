@@ -1,39 +1,21 @@
 # AI Agent Development Toolkit
 
-This repository contains a collection of tools and utilities for AI agent development, including:
+This repository contains an AI agent development toolkit powered by Google's Gemini API.
 
-1. A command-line calculator application
-2. File operation utilities for secure file access
-3. A Gemini AI interaction tool
+## AI Agent Setup
 
-## Components
+The main component of this repository is an AI coding agent that can help with various programming tasks through a command-line interface.
 
-### 1. Calculator Application
+### Features
 
-A command-line calculator that evaluates mathematical expressions and displays results in a decorative box.
-
-#### Features
-- Evaluates basic arithmetic expressions (+, -, *, /)
-- Handles operator precedence correctly
-- Displays results in a visually appealing format
-
-### 2. File Operations Utilities
-
-A set of functions for secure file operations within a permitted working directory.
-
-#### Features
-- Reading file contents with security checks
-- Writing content to files with directory creation
-- Listing files and directories with detailed information
-
-### 3. Gemini AI Interaction Tool
-
-A simple command-line tool to interact with the Gemini AI model.
-
-#### Features
-- Simple command-line interface
-- Direct interaction with Gemini 2.0 Flash model
-- Optional verbose mode for detailed information about token usage
+- **Interactive AI Assistant**: Communicate with Google's Gemini 2.0 Flash model
+- **Function Calling Capability**: The AI can perform operations on your filesystem:
+  - List files and directories
+  - Read file contents
+  - Execute Python files
+  - Write or modify files
+- **Conversation Context**: Maintains conversation history for contextual responses
+- **Verbose Mode**: Optional detailed output showing token usage
 
 ## Prerequisites
 
@@ -65,50 +47,7 @@ A simple command-line tool to interact with the Gemini AI model.
 
 ## Usage
 
-### 1. Calculator Application
-
-Run the calculator from the `calculator` directory:
-
-```
-cd calculator
-python main.py "3 + 4 * 2"
-```
-
-This will display a nicely formatted result:
-```
-┌──────────────┐
-│  3 + 4 * 2   │
-│              │
-│  =           │
-│              │
-│  11          │
-└──────────────┘
-```
-
-### 2. File Operations Utilities
-
-These utilities can be imported and used in your Python scripts:
-
-```python
-# Reading file content
-from functions.get_file_content import get_file_content
-content = get_file_content("working_directory", "path/to/file.txt")
-
-# Writing to a file
-from functions.write_file import write_file
-result = write_file("working_directory", "path/to/file.txt", "File content")
-
-# Listing files in a directory
-from functions.get_files_info import get_files_info
-files_info = get_files_info("working_directory", "path/to/directory")
-```
-
-You can also run the test script to see these functions in action:
-```
-python tests.py
-```
-
-### 3. Gemini AI Interaction Tool
+### AI Coding Assistant
 
 Basic usage:
 ```
@@ -131,16 +70,43 @@ python main.py "Your prompt here" --verbose
 #### Example
 
 ```
-python main.py "What is the meaning of life?" --verbose
+python main.py "How do I fix the calculator?" --verbose
 ```
 
 This will display:
 ```
-User prompt: What is the meaning of life?
+User prompt: How do I fix the calculator?
 Prompt tokens: <number>
 Response tokens: <number>
-<Gemini's response>
+ - Calling function: get_files_info
+ - Calling function: get_file_content
+<Gemini's response with suggestions to fix the calculator>
 ```
+
+### How It Works
+
+1. The AI agent receives your prompt
+2. It analyzes your request and creates a plan using function calls
+3. It can access files in the working directory (./calculator by default)
+4. It can read, write, and execute code to help solve your problem
+5. The conversation continues until a final response is generated
+
+## Configuration
+
+The AI agent behavior can be configured through the `config.py` file:
+
+- `MAX_CHARS`: Maximum characters for text processing (default: 10000)
+- `WORKING_DIR`: Working directory for file operations (default: "./calculator")
+- `MAX_ITERS`: Maximum number of conversation iterations (default: 20)
+
+## Available Functions
+
+The AI agent can use the following functions:
+
+- `get_files_info`: Lists files and directories
+- `get_file_content`: Reads content from a file
+- `write_file`: Writes content to a file
+- `run_python_file`: Executes a Python file
 
 ## Environment Variables
 
@@ -154,3 +120,39 @@ Response tokens: <number>
 ## License
 
 [Specify license information here]
+
+## Next Steps
+
+Here are some potential enhancements for this AI Agent Development Toolkit:
+
+### Memory and State Management
+- **Long-term Memory**: Implement persistent storage for conversation history across sessions
+- **Knowledge Base Integration**: Connect to external knowledge bases or documentation
+- **State Management**: Add capability to save and restore agent state
+
+### Enhanced Reasoning Capabilities
+- **Chain-of-Thought Reasoning**: Implement explicit reasoning steps for complex problems
+- **Planning and Decomposition**: Add structured planning for multi-step tasks
+- **Self-reflection**: Enable the agent to evaluate and improve its own responses
+
+### Tool Integration
+- **Web Search**: Add capability to search the web for up-to-date information
+- **API Integration**: Connect to external APIs (GitHub, Stack Overflow, etc.)
+- **Database Interaction**: Add functions to query and modify databases
+- **Version Control Integration**: Direct interaction with Git repositories
+
+### User Experience
+- **Interactive Mode**: Add a REPL-like interface for continuous interaction
+- **Multi-modal Input/Output**: Support for images, diagrams, and other media types
+- **Customizable Personas**: Allow users to define different agent personalities
+- **Progress Tracking**: Visual indication of multi-step task progress
+
+### Security and Safety
+- **Sandboxed Execution**: Improve security for code execution
+- **Permission System**: Granular permissions for file and system operations
+- **Content Filtering**: Add guardrails for generating safe and appropriate content
+
+### Performance Optimization
+- **Caching**: Implement response caching for common queries
+- **Parallel Function Execution**: Run multiple functions concurrently
+- **Model Switching**: Dynamically select different models based on the task
