@@ -1,4 +1,13 @@
+"""
+File content retrieval module.
+
+This module provides functionality to safely read file contents
+within a permitted working directory, with safeguards against
+accessing files outside the allowed scope.
+"""
+
 import os
+from typing import Any
 
 from google.genai import types
 
@@ -47,7 +56,8 @@ def get_file_content(working_directory: str, file_path: str) -> str:
         return f"Error: {e}"
 
 
-schema_get_file_content = types.FunctionDeclaration(
+# Schema definition for the function to be used with Google's Generative AI API
+schema_get_file_content: types.FunctionDeclaration = types.FunctionDeclaration(
     name="get_file_content",
     description="Read and return the content of a file within the permitted working directory, files larger than 10000 characters will be truncated.",
     parameters=types.Schema(
@@ -64,4 +74,3 @@ schema_get_file_content = types.FunctionDeclaration(
         },
     ),
 )
-

@@ -1,5 +1,13 @@
+"""
+File information retrieval module.
+
+This module provides functionality to safely retrieve information about files
+within a permitted working directory, with safeguards against
+accessing directories outside the allowed scope.
+"""
+
 import os
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from google.genai import types
 
@@ -73,8 +81,8 @@ def get_files_info(working_directory: str, directory: Optional[str] = None) -> s
         return f"Error: {e}"
 
 
-
-schema_get_files_info = types.FunctionDeclaration(
+# Schema definition for the function to be used with Google's Generative AI API
+schema_get_files_info: types.FunctionDeclaration = types.FunctionDeclaration(
     name="get_files_info",
     description="Lists files in the specified directory along with their sizes, constrained to the working directory.",
     parameters=types.Schema(

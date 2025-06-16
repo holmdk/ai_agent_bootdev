@@ -1,3 +1,10 @@
+"""
+Helper functions for file path operations.
+
+This module provides utility functions for handling file paths,
+including converting relative paths to absolute paths.
+"""
+
 import os
 from typing import Tuple
 

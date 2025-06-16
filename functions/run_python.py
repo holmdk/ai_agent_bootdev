@@ -1,12 +1,21 @@
+"""
+Python file execution module.
+
+This module provides functionality to safely execute Python files
+within a permitted working directory, with safeguards against
+executing files outside the allowed scope.
+"""
+
 import os
 import subprocess
+from typing import Any
 
 from google.genai import types
 
 from functions.helper_functions import extract_absolute_paths
 
 
-def run_python_file(working_directory, file_path):
+def run_python_file(working_directory: str, file_path: str) -> str:
     """
     Execute a Python file and capture its output.
 
@@ -74,9 +83,10 @@ def run_python_file(working_directory, file_path):
         return f"Error: {e}"
 
 
-schema_run_python_file = types.FunctionDeclaration(
+# Schema definition for the function to be used with Google's Generative AI API
+schema_run_python_file: types.FunctionDeclaration = types.FunctionDeclaration(
     name="run_python_file",
-    description="Write content to a file within the permitted working directory.",
+    description="Execute a Python file and capture its output within the permitted working directory.",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={

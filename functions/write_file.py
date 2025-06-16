@@ -1,4 +1,13 @@
+"""
+File writing module.
+
+This module provides functionality to safely write content to files
+within a permitted working directory, with safeguards against
+writing to files outside the allowed scope.
+"""
+
 import os
+from typing import Any
 
 from google.genai import types
 
@@ -39,7 +48,8 @@ def write_file(working_directory: str, file_path: str, content: str) -> str:
         return f"Error: {e}"
 
 
-schema_write_file = types.FunctionDeclaration(
+# Schema definition for the function to be used with Google's Generative AI API
+schema_write_file: types.FunctionDeclaration = types.FunctionDeclaration(
     name="write_file",
     description="Write content to a file within the permitted working directory.",
     parameters=types.Schema(
