@@ -19,6 +19,55 @@ from prompts import system_prompt
 
 from call_function import available_functions
 
+FEEDBACK_LOOP_LIMIT = 20
+
+
+def run_call(messages: list[types.Content], model: str = "gemini-2.0-flash-001"):
+    config = types.GenerateContentConfig(
+        tools=[available_functions], system_instruction=system_prompt
+    )
+    # Generate response from the model
+    response = client.models.generate_content(
+        model=model,
+        contents=messages,
+        config=config,
+    )
+
+    if verbose:
+        print("Prompt tokens:", response.usage_metadata.prompt_token_count)
+        print("Response tokens:", response.usage_metadata.candidates_token_count)
+
+    if not response.function_calls:
+        return response.text
+    else:
+        if response.candidates:
+            for candidate in response.candidates:
+                messages.append(candidate.content)
+
+        function_responses = []
+        for function_call_part in response.function_calls:
+            # print(f"Calling function: {function_call_part.name}({function_call_part.args})")
+            call_content = call_function(function_call_part, verbose=verbose)
+
+            if (
+                    not call_content.parts
+                    or not call_content.parts[0].function_response
+            ):
+                raise ValueError(
+                    f"Function {function_call_part.name} returned no response."
+                )
+            else:
+                if verbose:
+                    print(
+                        f"Function {function_call_part.name} response: {call_content.parts[0].function_response.response}")
+                #messages.append(call_content)
+                function_responses.append(call_content.parts[0])
+
+        if not function_responses:
+            raise Exception("no function responses generated, exiting.")
+
+        messages.append(types.Content(role="tool", parts=function_responses))
+
 
 if __name__ == '__main__':
     # Load environment variables and initialize client
@@ -42,37 +91,20 @@ if __name__ == '__main__':
     if verbose:
         print(f"User prompt: {user_prompt}\n")
 
-    # Prepare message for the model
+    # Prepare initial message for the model
     messages: list[types.Content] = [
         types.Content(role="user", parts=[types.Part(text=user_prompt)]),
     ]
 
-    config = types.GenerateContentConfig(
-        tools=[available_functions], system_instruction=system_prompt
-    )
+    for i in range(FEEDBACK_LOOP_LIMIT):
+        final_response = run_call(messages)
 
-    # Generate response from the model
-    response = client.models.generate_content(
-        model="gemini-2.0-flash-001",
-        contents=messages,
-        config=config,
-    )
+        if final_response:
+            print("Final response:")
+            print(final_response)
+            print("No more function calls needed. Exiting feedback loop.")
+            break
+        if verbose:
+            print(f"\nFeedback loop iteration {i + 1}/{FEEDBACK_LOOP_LIMIT}")
 
-    if verbose:
-        print("Prompt tokens:", response.usage_metadata.prompt_token_count)
-        print("Response tokens:", response.usage_metadata.candidates_token_count)
 
-    if not response.function_calls:
-        print(response.text)
-
-    for function_call_part in response.function_calls:
-        #print(f"Calling function: {function_call_part.name}({function_call_part.args})")
-        call_content = call_function(function_call_part, verbose=verbose)
-
-        if call_content.parts[0].function_response.response is None:
-            raise ValueError(
-                f"Function {function_call_part.name} returned no response."
-            )
-        else:
-            if verbose:
-                print(f"Function {function_call_part.name} response: {call_content.parts[0].function_response.response}")
